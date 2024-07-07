@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -22,8 +23,8 @@ type Server struct {
 
 func NewDb() (*sql.DB, func()) {
 	dbName := "local.db"
-	primaryUrl := "libsql://[DATABASE].turso.io"
-	authToken := "..."
+	primaryUrl := os.Getenv("TURSO_DATABASE_URL")
+	authToken := os.Getenv("TURSO_AUTH_TOKEN")
 
 	dir, err := os.MkdirTemp("", "libsql-*")
 	if err != nil {
@@ -36,6 +37,7 @@ func NewDb() (*sql.DB, func()) {
 
 	connector, err := libsql.NewEmbeddedReplicaConnector(dbPath, primaryUrl,
 		libsql.WithAuthToken(authToken),
+		libsql.WithSyncInterval(time.Minute),
 	)
 	if err != nil {
 		fmt.Println("Error creating connector:", err)
@@ -54,7 +56,7 @@ func NewDb() (*sql.DB, func()) {
 func NewServer(port int) (*http.Server, func()) {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Println("Error loading .env file")
 	}
 
 	sqliteDb, cleanup := NewDb()
@@ -75,4 +77,18 @@ func NewServer(port int) (*http.Server, func()) {
 	}
 	return server, cleanup
 
+}
+func (s *Server) ExtractSubdomain(r *http.Request) string {
+	// The Host that the user queried.
+	host := r.URL.Host
+	host = strings.TrimSpace(host)
+	// Figure out if a subdomain exists in the host given.
+	host_parts := strings.Split(host, ".")
+	if len(host_parts) > 2 {
+		//The subdomain exists, we store it as the first element
+		//in a new array
+		subdomain := host_parts[0]
+		return subdomain
+	}
+	return ""
 }
