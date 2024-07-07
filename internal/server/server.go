@@ -79,16 +79,6 @@ func NewServer(port int) (*http.Server, func()) {
 
 }
 func (s *Server) ExtractSubdomain(r *http.Request) string {
-	// The Host that the user queried.
-	host := r.URL.Host
-	host = strings.TrimSpace(host)
-	// Figure out if a subdomain exists in the host given.
-	host_parts := strings.Split(host, ".")
-	if len(host_parts) > 2 {
-		//The subdomain exists, we store it as the first element
-		//in a new array
-		subdomain := host_parts[0]
-		return subdomain
-	}
-	return ""
+	parts := strings.Split(r.Host, ".")
+	return parts[0]
 }
