@@ -25,14 +25,25 @@ func (s *Server) HealthHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) InvitationsHandler(w http.ResponseWriter, r *http.Request) {
 	subdomain := s.ExtractSubdomain(r)
-	log.Println(subdomain)
+	_, err := s.Queries.GetTenantBySlug(r.Context(), subdomain)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	template, err := s.GetTemplateBySlug(subdomain)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	template.Render(r.Context(), w)
+
 }
 
 func (s *Server) StatsHandler(w http.ResponseWriter, r *http.Request) {
-
 	subdomain := s.ExtractSubdomain(r)
 	log.Println(subdomain)
 	w.WriteHeader(http.StatusOK)

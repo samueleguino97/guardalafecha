@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"guardalafecha/internal/db"
+	"guardalafecha/internal/templates"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/a-h/templ"
 	"github.com/joho/godotenv"
 	"github.com/tursodatabase/go-libsql"
 )
@@ -81,4 +83,15 @@ func NewServer(port int) (*http.Server, func()) {
 func (s *Server) ExtractSubdomain(r *http.Request) string {
 	parts := strings.Split(r.Host, ".")
 	return parts[0]
+}
+func (s *Server) GetTemplateBySlug(slug string) (templ.Component, error) {
+	switch slug {
+	case "brianykari":
+
+		component := templates.BrianyKari()
+		return component, nil
+	default:
+		return nil, fmt.Errorf("template not found")
+
+	}
 }

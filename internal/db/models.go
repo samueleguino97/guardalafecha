@@ -8,6 +8,8 @@ type Confirmation struct {
 	ID            int64
 	UserID        int64
 	ConfirmedName string
+	TenantID      int64
+	Foreign       interface{}
 }
 
 type Session struct {
@@ -15,7 +17,14 @@ type Session struct {
 	Token     string
 	ExpiresAt int64
 	UserID    int64
+	TenantID  int64
 	Foreign   interface{}
+}
+
+type Tenant struct {
+	ID   int64
+	Name string
+	Slug string
 }
 
 type Token struct {
@@ -23,6 +32,9 @@ type Token struct {
 	ExpiresAt int64
 	UserID    int64
 	TokenType string
+	TenantID  int64
+	Primary   interface{}
+	Foreign   interface{}
 }
 
 type User struct {
@@ -30,4 +42,5 @@ type User struct {
 	Name          string
 	Slug          string
 	ReservedSpots int64
+	TenantID      int64
 }
